@@ -25,7 +25,7 @@ void setup() {
     while(1);
   }
 
-  BLE.setDeviceName("Danika and Alice");
+  BLE.setDeviceName("Danika, Marc, and Priyanka");
   BLE.setAdvertisedService(newService);
   newService.addCharacteristic(readChar);
   newService.addCharacteristic(writeChar);
