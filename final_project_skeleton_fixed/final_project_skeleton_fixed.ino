@@ -1,4 +1,5 @@
 #include <Wire.h> // Necessary for I2C communication
+#include <LiquidCrystal.h>
 
 int accel = 0x53; // I2C address for this sensor (from data sheet)
 float x, y, z, accvector;
