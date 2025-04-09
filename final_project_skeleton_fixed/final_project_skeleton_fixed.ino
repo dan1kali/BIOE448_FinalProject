@@ -1,5 +1,10 @@
 #include <Wire.h> // Necessary for I2C communication
 #include <LiquidCrystal.h>
+#include <ArduinoBLE.h>
+BLEService newService("180A");
+
+BLEByteCharacteristic readChar("2A58", BLERead);
+BLEByteCharacteristic writeChar("2A57", BLEWrite);
 
 int accel = 0x53; // I2C address for this sensor (from data sheet)
 float x, y, z, accvector;
@@ -11,6 +16,29 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 void setup() {
   Serial.begin(9600);
   lcd.begin(16, 2); //Initiate the LCD in a 16x2 configuration
+
+
+
+  while(!Serial);
+  if (!BLE.begin()){
+    Serial.println("Waiting for ArduinoBLE");
+    while(1);
+  }
+
+  BLE.setDeviceName("Danika and Alice");
+  BLE.setAdvertisedService(newService);
+  newService.addCharacteristic(readChar);
+  newService.addCharacteristic(writeChar);
+  BLE.addService(newService);
+  
+  readChar.writeValue(0);
+  writeChar.writeValue(0);
+
+  BLE.advertise();
+  Serial.println("Bluetooth device active");
+
+
+
   Wire.begin(); // Initialize serial communications
   Wire.beginTransmission(accel); // Start communicating with the device
   Wire.write(0x2D); // Enable measurement
@@ -19,6 +47,31 @@ void setup() {
 }
 
 void loop() {
+
+  BLEDevice central = BLE.central(); // wait for a BLE central
+
+  if (central) {  // if a central is connected to the peripheral
+    Serial.print("Connected to central: ");
+    
+    Serial.println(central.address()); // print the central's BT address
+    
+    digitalWrite(LED_BUILTIN, HIGH); // turn on the LED to indicate the connection
+
+    while (central.connected()) { // while the central is connected:
+        
+      if (writeChar.written()) {
+        if (writeChar.value()) {
+
+        readChar.writeValue(stepcount);
+        Serial.println("Stepcount printed to peripheral");
+          
+        }
+      }
+
+    }
+  }
+
+
   Wire.beginTransmission(accel);
   Wire.write(0x32); // Prepare to get readings for sensor (address from data sheet)
   Wire.endTransmission(false);
@@ -45,7 +98,7 @@ void loop() {
     stepcount++;
     Serial.println(stepcount);
 
-  lcd.print("Step Count:")
+  lcd.print("Step Count:");
   lcd.setCursor(0, 1);
   lcd.print(stepcount);
 
