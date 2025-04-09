@@ -3,9 +3,14 @@
 
 int accel = 0x53; // I2C address for this sensor (from data sheet)
 float x, y, z, accvector;
+int threshold = 40000;   // Threshold initialized to 40000
+int stepcount = 0;       // Step count initialized to 0
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 void setup() {
   Serial.begin(9600);
+  lcd.begin(16, 2); //Initiate the LCD in a 16x2 configuration
   Wire.begin(); // Initialize serial communications
   Wire.beginTransmission(accel); // Start communicating with the device
   Wire.write(0x2D); // Enable measurement
@@ -32,6 +37,17 @@ void loop() {
   // Serial.print(y);
   // Serial.print(", z = ");
   // Serial.print(z);
-  Serial.println(accvector);
+  
+  
+  //Serial.println(accvector);
+
+  if (accvector > threshold)
+    stepcount++;
+    Serial.println(stepcount);
+
+  lcd.print("Step Count:")
+  lcd.setCursor(0, 1);
+  lcd.print(stepcount);
+
   delay(200);
 }
