@@ -11,7 +11,7 @@ float x, y, z, accvector;
 int threshold = 40000;   // Threshold initialized to 40000
 int stepcount = 0;       // Step count initialized to 0
 
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+LiquidCrystal lcd(10, 8, 2, 3, 4, 5);
 
 void setup() {
   Serial.begin(9600);
